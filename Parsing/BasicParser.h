@@ -24,6 +24,7 @@ public:
     double NumVal;
     std::string IdentifierStr;
     std::map<char,int> BinopPrecedence;
+    std::unique_ptr<ExprAST> ParseBinOpRHS(int ExprPrec, std::unique_ptr<ExprAST> RHS);
 
 };
 

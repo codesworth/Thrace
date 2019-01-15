@@ -131,3 +131,40 @@ std::unique_ptr<ExprAST>BasicParser::ParseExpression(){
 
     //return ParseBinOpRHS(0,std::move(LHS));
 }
+
+/// binoprhs
+///   ::= ('+' primary)*
+
+std::unique_ptr<ExprAST> BasicParser::ParseBinOpRHS(int ExprPrec, std::unique_ptr<ExprAST> LHS) {
+
+    // If this is a binop, find its precedence.
+    while (1){
+        int TokPrecedence = getTokPrecedence();
+
+        // If this is a binop that binds at least as tightly as the current binop,
+        // consume it, otherwise we are done.
+
+        if (TokPrecedence < ExprPrec){
+            return LHS;
+        }
+
+        // Okay, we know this is a binop.
+        int BinOp = CurTok;
+        Lexer.getNextTok(); //
+        auto RHS = ParsePrimary();
+        if (!RHS)
+            return nullptr;
+    }
+
+
+
+
+
+
+
+}
+
+
+
+
+
