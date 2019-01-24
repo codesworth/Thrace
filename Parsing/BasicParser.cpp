@@ -129,7 +129,7 @@ std::unique_ptr<ExprAST>BasicParser::ParseExpression(){
     if (!LHS)
         return nullptr;
 
-    //return ParseBinOpRHS(0,std::move(LHS));
+    return ParseBinOpRHS(0,std::move(LHS));
 }
 
 /// binoprhs
@@ -154,14 +154,38 @@ std::unique_ptr<ExprAST> BasicParser::ParseBinOpRHS(int ExprPrec, std::unique_pt
         auto RHS = ParsePrimary();
         if (!RHS)
             return nullptr;
+
+        int NextPrec = getTokPrecedence();
+        if (TokPrecedence > NextPrec){
+            RHS = ParseBinOpRHS(TokPrecedence + 1,std::move(RHS));
+            if (!RHS)
+                return nullptr;
+        }
+
+        // Merge LHS/RHS.
+        LHS = llvm::make_unique<BinaryExprAST>(BinOp,std::move(LHS), std::move(RHS));
+
+    }// loop around to the top of the while loop.
+
+    // If BinOp binds less tightly with RHS than the operator after RHS, let
+// the pending operator take RHS as its LHS.
+
+}
+
+
+
+/// prototype
+///   ::= id '(' id* ')'
+
+std::unique_ptr<PrototypeAST>BasicParser::ParsePrototype(){
+    if (CurTok!= tok_identifier)
+        Diagnostics.LogErr("Expected Function Name");
+    std::string fnName = IdentifierStr;
+    Lexer.getNextTok();
+
+    if (CurTok != '('){
+        Diagnostics.LogErr("Expected '(' after function Name" );
     }
-
-
-
-
-
-
-
 }
 
 

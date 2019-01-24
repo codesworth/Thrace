@@ -26,6 +26,7 @@ public:
     std::map<char,int> BinopPrecedence;
     std::unique_ptr<ExprAST> ParseBinOpRHS(int ExprPrec, std::unique_ptr<ExprAST> RHS);
 
+    std::unique_ptr<PrototypeAST> ParsePrototype();
 };
 
 
