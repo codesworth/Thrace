@@ -156,7 +156,7 @@ std::unique_ptr<ExprAST> BasicParser::ParseBinOpRHS(int ExprPrec, std::unique_pt
             return nullptr;
 
         int NextPrec = getTokPrecedence();
-        if (TokPrecedence > NextPrec){
+        if (TokPrecedence < NextPrec){
             RHS = ParseBinOpRHS(TokPrecedence + 1,std::move(RHS));
             if (!RHS)
                 return nullptr;
@@ -184,8 +184,46 @@ std::unique_ptr<PrototypeAST>BasicParser::ParsePrototype(){
     Lexer.getNextTok();
 
     if (CurTok != '('){
-        Diagnostics.LogErr("Expected '(' after function Name" );
+        return Diagnostics.LogErrorP("Expected '(' after function Name" );
     }
+
+    // Read the list of argument names.
+    std::vector<std::string> ArgsNames;
+    while (Lexer.getNextTok() == tok_identifier)
+        ArgsNames.push_back(IdentifierStr);
+    if (CurTok != ')')
+        return Diagnostics.LogErrorP("Expected ')' in prototype");
+
+    Lexer.getNextTok();
+
+    return llvm::make_unique<PrototypeAST>(fnName,std::move(ArgsNames));
+}
+
+
+
+/// definition ::= 'def' prototype expression
+
+std::unique_ptr<FunctionAST> BasicParser::ParseDefinition(){
+    Lexer.getNextTok(); //eat def
+
+    auto proto = ParsePrototype();
+
+    if (!proto)
+        return nullptr;
+
+    if (auto E = ParseExpression())
+        return llvm::make_unique<FunctionAST>(std::move(proto), std::move(E));
+
+    return nullptr;
+}
+
+
+/// external ::= 'extern' prototype
+
+std::unique_ptr<PrototypeAST> BasicParser::ParseExtern(){
+    Lexer.getNextTok();
+    ParsePrototype();
+
 }
 
 

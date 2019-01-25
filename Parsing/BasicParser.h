@@ -27,6 +27,10 @@ public:
     std::unique_ptr<ExprAST> ParseBinOpRHS(int ExprPrec, std::unique_ptr<ExprAST> RHS);
 
     std::unique_ptr<PrototypeAST> ParsePrototype();
+
+    std::unique_ptr<FunctionAST> ParseDefinition();
+
+    std::unique_ptr<PrototypeAST> ParseExtern();
 };
 
 
