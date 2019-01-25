@@ -226,6 +226,20 @@ std::unique_ptr<PrototypeAST> BasicParser::ParseExtern(){
 
 }
 
+/// toplevelexpr ::= expression
+
+std::unique_ptr<FunctionAST> BasicParser::ParseTopLevelExpr(){
+
+    if (auto E = ParseExpression()){
+        // Make an anonymous proto.
+        auto Proto = llvm::make_unique<PrototypeAST>("",std::vector<std::string>());
+        return llvm::make_unique<FunctionAST>(std::move(Proto), std::move(E));
+    }
+
+    return nullptr;
+    
+}
+
 
 
 
