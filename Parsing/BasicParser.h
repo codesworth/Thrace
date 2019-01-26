@@ -12,6 +12,9 @@ class BasicParser {
 
 public:
     BasicParser();
+    void MainLoop();
+
+private:
     std::unique_ptr<ExprAST> ParseNumberExpr();
     std::unique_ptr<ExprAST> ParseParenExpr();
     std::unique_ptr<ExprAST> ParseIdentifierExpr();
@@ -33,6 +36,12 @@ public:
     std::unique_ptr<PrototypeAST> ParseExtern();
 
     std::unique_ptr<FunctionAST> ParseTopLevelExpr();
+
+    void HandleDefinition();
+
+    void HandleExtern();
+
+    void HandleTopLevelExpression();
 };
 
 
