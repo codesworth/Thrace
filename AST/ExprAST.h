@@ -53,6 +53,8 @@ class CallExprAST:public ExprAST{
     std::string Callee;
     std::vector<std::unique_ptr<ExprAST>> Args;
 
+
+public:
     CallExprAST(std::string &callee, std::vector<std::unique_ptr<ExprAST>> Args):
             Callee(callee),Args(std::move(Args)){}
 
@@ -75,7 +77,7 @@ public:
     PrototypeAST(std::string name, std::vector<std::string> args):
             Name(name), Args(args){}
 
-    std::string &getName () const{
+    std::string &getName (){
         return Name;
     }
 

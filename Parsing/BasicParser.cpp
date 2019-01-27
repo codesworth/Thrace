@@ -1,10 +1,8 @@
 //
 // Created by Mensah Shadrach on 14/01/2019.
 //
+#include "llvm/ADT/STLExtras.h"
 
-#include <llvm/ADT/STLExtras.h>
-
-#include <utility>
 #include <map>
 #include "BasicParser.h"
 
@@ -27,7 +25,7 @@ std::unique_ptr<ExprAST> BasicParser::ParseNumberExpr(){
 /// parenexpr ::= '(' expression ')'
 std::unique_ptr<ExprAST> BasicParser::ParseParenExpr() {
     CurTok = Lexer.getNextTok(); // eat (.
-    auto V;  //ParseExpression();
+    auto V = ParseExpression();
     if (!V)
         return nullptr;
 
