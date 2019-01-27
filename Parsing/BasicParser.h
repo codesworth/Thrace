@@ -41,6 +41,8 @@ private:
     void HandleExtern();
 
     void HandleTopLevelExpression();
+
+    int getNextToken();
 };
 
 

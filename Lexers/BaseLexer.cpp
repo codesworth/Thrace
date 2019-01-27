@@ -16,7 +16,7 @@ int BaseLexer::getToken(){
     if (isalpha(lastChar)){
         IdentifierStr = lastChar;
         while (isalnum(lastChar = getchar()))
-            IdentifierStr = lastChar;
+            IdentifierStr += lastChar;
 
 
         if (IdentifierStr == "def"){

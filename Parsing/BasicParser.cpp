@@ -24,14 +24,14 @@ std::unique_ptr<ExprAST> BasicParser::ParseNumberExpr(){
 
 /// parenexpr ::= '(' expression ')'
 std::unique_ptr<ExprAST> BasicParser::ParseParenExpr() {
-    CurTok = Lexer.getNextTok(); // eat (.
+    getNextToken(); // eat (.
     auto V = ParseExpression();
     if (!V)
         return nullptr;
 
     if (CurTok != ')')
         return Diagnostics.LogErr("expected ')'");
-    CurTok = Lexer.getNextTok(); // eat ).
+    getNextToken(); // eat ).
     return V;
 }
 
@@ -42,7 +42,7 @@ std::unique_ptr<ExprAST> BasicParser::ParseParenExpr() {
 
 std::unique_ptr<ExprAST> BasicParser::ParseIdentifierExpr(){
     std::string IdName = std::move(IdentifierStr);
-    CurTok = Lexer.getNextTok();
+    getNextToken();
 
     if (CurTok != '('){
         //Simple Variable Ref
@@ -51,7 +51,7 @@ std::unique_ptr<ExprAST> BasicParser::ParseIdentifierExpr(){
     }
 
     //Call
-    CurTok = Lexer.getNextTok();
+    getNextToken();
     std::vector<std::unique_ptr<ExprAST>> Args;
 
     if (CurTok != ')'){
@@ -67,15 +67,15 @@ std::unique_ptr<ExprAST> BasicParser::ParseIdentifierExpr(){
             if (CurTok != ',')
                Diagnostics.LogErr("Expected ')' or ',' in argument list");
 
-            CurTok = Lexer.getNextTok();
+           getNextToken();
         }
 
 
     }
     //Eat the ')'
-    CurTok = Lexer.getNextTok();
+    getNextToken();
 
-    llvm::make_unique<CallExprAST>(IdName,std::move(Args));
+    return  llvm::make_unique<CallExprAST>(IdName,std::move(Args));
 
 }
 
@@ -87,14 +87,14 @@ std::unique_ptr<ExprAST> BasicParser::ParseIdentifierExpr(){
 
 std::unique_ptr<ExprAST>BasicParser::ParsePrimary(){
     switch (CurTok){
-        default:
-            return Diagnostics.LogErr("unknown token when expecting an expression");
         case tok_identifier:
             return ParseIdentifierExpr();
         case tok_number:
             return ParseNumberExpr();
         case '(':
-            ParseParenExpr();
+            return ParseParenExpr();
+        default:
+            return Diagnostics.LogErr("unknown token when expecting an expression");
     }
 }
 
@@ -148,7 +148,7 @@ std::unique_ptr<ExprAST> BasicParser::ParseBinOpRHS(int ExprPrec, std::unique_pt
 
         // Okay, we know this is a binop.
         int BinOp = CurTok;
-        Lexer.getNextTok(); //
+        getNextToken(); //
         auto RHS = ParsePrimary();
         if (!RHS)
             return nullptr;
@@ -171,6 +171,12 @@ std::unique_ptr<ExprAST> BasicParser::ParseBinOpRHS(int ExprPrec, std::unique_pt
 }
 
 
+int BasicParser::getNextToken(){
+   CurTok = Lexer.getNextTok();
+    return CurTok;
+}
+
+
 
 /// prototype
 ///   ::= id '(' id* ')'
@@ -179,7 +185,7 @@ std::unique_ptr<PrototypeAST>BasicParser::ParsePrototype(){
     if (CurTok!= tok_identifier)
         Diagnostics.LogErr("Expected Function Name");
     std::string fnName = IdentifierStr;
-    Lexer.getNextTok();
+    getNextToken();
 
     if (CurTok != '('){
         return Diagnostics.LogErrorP("Expected '(' after function Name" );
@@ -187,12 +193,15 @@ std::unique_ptr<PrototypeAST>BasicParser::ParsePrototype(){
 
     // Read the list of argument names.
     std::vector<std::string> ArgsNames;
-    while (Lexer.getNextTok() == tok_identifier)
+    while (getNextToken() == tok_identifier){
         ArgsNames.push_back(IdentifierStr);
+
+    }
+
     if (CurTok != ')')
         return Diagnostics.LogErrorP("Expected ')' in prototype");
 
-    Lexer.getNextTok();
+    getNextToken();
 
     return llvm::make_unique<PrototypeAST>(fnName,std::move(ArgsNames));
 }
@@ -202,7 +211,7 @@ std::unique_ptr<PrototypeAST>BasicParser::ParsePrototype(){
 /// definition ::= 'def' prototype expression
 
 std::unique_ptr<FunctionAST> BasicParser::ParseDefinition(){
-    Lexer.getNextTok(); //eat def
+     getNextToken(); //eat def
 
     auto proto = ParsePrototype();
 
@@ -219,8 +228,8 @@ std::unique_ptr<FunctionAST> BasicParser::ParseDefinition(){
 /// external ::= 'extern' prototype
 
 std::unique_ptr<PrototypeAST> BasicParser::ParseExtern(){
-    Lexer.getNextTok();
-    ParsePrototype();
+    getNextToken();
+    return ParsePrototype();
 
 }
 
@@ -246,7 +255,7 @@ void BasicParser::HandleDefinition(){
         fprintf(stderr,"Parsed a function definition");
     } else{
         //Skip TOken for error recovery
-        Lexer.getNextTok();
+        getNextToken();
     }
 }
 
@@ -256,7 +265,7 @@ void BasicParser::HandleExtern(){
         fprintf(stderr, "Parsed an extern\n");
     } else {
         // Skip token for error recovery.
-        Lexer.getNextTok();
+       getNextToken();
     }
 }
 
@@ -267,7 +276,7 @@ void BasicParser::HandleTopLevelExpression(){
         fprintf(stderr, "Parsed a top-level expr\n");
     } else {
         // Skip token for error recovery.
-        Lexer.getNextTok();
+        getNextToken();
     }
 }
 
@@ -284,7 +293,7 @@ void BasicParser::MainLoop(){
             case tok_eof:
                 return;
             case ';':
-                Lexer.getNextTok();
+                getNextToken();
                 break;
             case toke_def:
                 HandleDefinition();
