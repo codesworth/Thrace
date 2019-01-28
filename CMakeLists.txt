@@ -7,4 +7,4 @@ set(LLVM_PATH /usr/local/opt/llvm)
 link_directories(${LLVM_PATH}/lib)
 include_directories(${LLVM_PATH}/include)
 
-add_executable(Thrace main.cpp AST/ExprAST.h Parsing/BasicParser.cpp Parsing/BasicParser.h Diagnostics/BasicDiagnostics.cpp Diagnostics/BasicDiagnostics.h Lexers/BaseLexer.cpp Lexers/BaseLexer.h CodeGen/ThraceGen.cpp CodeGen/ThraceGen.h)
+add_executable(Thrace main.cpp AST/ExprAST.h Parsing/BasicParser.cpp Parsing/BasicParser.h Diagnostics/BasicDiagnostics.cpp Diagnostics/BasicDiagnostics.h Lexers/BaseLexer.cpp Lexers/BaseLexer.h CodeGen/ThraceGen.cpp CodeGen/ThraceGen.h AST/ExprsAST.cpp AST/ExprsAST.h AST/NumberExprsAST.cpp AST/NumberExprsAST.h)

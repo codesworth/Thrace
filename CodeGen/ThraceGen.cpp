@@ -3,3 +3,15 @@
 //
 
 #include "ThraceGen.h"
+
+
+ThraceGen::ThraceGen():Builder(TheContext) {
+
+}
+
+
+
+Value * ThraceGen::LogErrorV(const char* s){
+    fprintf(stderr,"LogError: %s\n",s);
+    return nullptr;
+}
